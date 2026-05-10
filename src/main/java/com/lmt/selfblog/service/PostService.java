@@ -1,7 +1,7 @@
 package com.lmt.selfblog.service;
 
-import com.lmt.selfblog.dto.PostRequestDTO;
-import com.lmt.selfblog.dto.PostResponseDTO;
+import com.lmt.selfblog.dto.request.PostRequestDTO;
+import com.lmt.selfblog.dto.response.PostResponseDTO;
 
 import java.util.List;
 

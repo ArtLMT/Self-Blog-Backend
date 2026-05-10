@@ -1,10 +1,9 @@
-package com.lmt.selfblog.dto;
+package com.lmt.selfblog.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Data
 @Builder

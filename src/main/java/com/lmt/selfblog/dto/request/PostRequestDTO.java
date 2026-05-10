@@ -1,4 +1,4 @@
-package com.lmt.selfblog.dto;
+package com.lmt.selfblog.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

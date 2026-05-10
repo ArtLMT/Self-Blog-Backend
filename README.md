@@ -1,245 +1,277 @@
-# Personal Tech Blog Project
+# SelfBlog
 
-## 1. Project Overview
+A personal blogging platform built to document learning journeys, development experiences, and deployment practices.
 
-### Project Name
-Self-Blog
-
----
-
-## 2. Description
-
-This project is a personal blog platform built to document learning experiences, technical knowledge, deployment practices, and development journeys.
-
-The blog mainly focuses on:
-- Software development learning
-- Backend and frontend experiences
-- Deployment and DevOps practices
-- Personal technical notes and project reflections
-
-The platform supports bilingual content:
-- English
-- Vietnamese
-
-This project is also used as a sandbox environment to practice:
-- Full-stack development
-- Authentication and authorization
-- Deployment workflows
-- CI/CD concepts
-- Cloud hosting
+The project focuses on:
+- Writing technical and personal learning articles
+- Practicing full-stack development
+- Exploring deployment workflows
+- Supporting multilingual content (English & Vietnamese)
 
 ---
 
-## 3. Target Users
+# ✨ Overview
 
-### Primary User
-- The project owner (admin)
+SelfBlog is a minimal full-stack blog system where the owner manages all content while visitors can freely read articles and interact through comments.
 
-### Secondary Users
-- Friends
-- Recruiters
-- Developers
-- Readers interested in software engineering and deployment topics
-
----
-
-# 4. Project Goals
-
-The goals of this project are:
-
-- Practice full-stack web development
-- Learn deployment workflows
-- Build a production-ready personal portfolio
-- Improve frontend and backend integration skills
-- Practice authentication and authorization
-- Create a platform to document personal learning experiences
+The main purpose of this project is not only blogging, but also:
+- learning real-world software architecture
+- practicing backend/frontend integration
+- understanding authentication & authorization
+- handling multilingual content
+- deploying production-ready applications
 
 ---
 
-# 5. Technology Stack
+# 🎯 Target Users
+
+- Personal use
+- Friends or readers who want to follow shared experiences
+- Developers interested in technical articles and learning notes
+
+---
+
+# 🏗️ Architecture
+
+This project uses a separated architecture:
+
+```text
+Frontend (Next.js)
+        │
+        ▼
+Backend API (Spring Boot)
+        │
+        ▼
+PostgreSQL Database
+```
+
+- Frontend and Backend are separated repositories
+- Backend and Database run inside Docker
+- Frontend is deployed independently on Vercel
+
+---
+
+# 🛠️ Tech Stack
 
 ## Frontend
 - Next.js
 - Tailwind CSS
+- TypeScript
+- next-intl / i18n
 
 ## Backend
 - Spring Boot
+- Spring Security
+- JWT Authentication
 
 ## Database
 - PostgreSQL
 
-## Deployment
-- Vercel (Frontend)
-
----
-
-# 6. Functional Requirements
-
-## 6.1 Public Features
-
-### Guest Users Can:
-- View blog posts
-- Read post details
-- Switch between English and Vietnamese
-- Browse published articles
-- View responsive layouts on multiple devices
-
----
-
-## 6.2 Authentication Features
-
-### Registered Users Can:
-- Login to the system
-- Leave comments or messages on blog posts
-
----
-
-## 6.3 Admin Features
-
-Only the admin (project owner) can:
-- Create blog posts
-- Edit blog posts
-- Delete blog posts
-- Publish or unpublish posts
-- Manage comments/messages
-
----
-
-## 6.4 Language Features
-
-The system must support:
-- English language
-- Vietnamese language
-
-Users can switch languages dynamically.
-
----
-
-# 7. Non-Functional Requirements
-
-## Performance
-- Fast page loading
-- Responsive UI
-
-## Security
-- JWT authentication
-- Protected admin APIs
-- Role-based authorization
-
-## Usability
-- Clean and minimal UI
-- Mobile responsive design
-
-## Maintainability
-- Modular frontend structure
-- RESTful backend APIs
-- Clean code practices
-
----
-
-# 8. Suggested Database Entities
-
-## Users
-Stores user account information.
-
-Fields:
-- id
-- username
-- password
-- role
-
----
-
-## Posts
-Stores blog articles.
-
-Fields:
-- id
-- slug
-- title_en
-- title_vi
-- content_en
-- content_vi
-- published
-- created_at
-- updated_at
-
----
-
-## Comments
-Stores user comments/messages.
-
-Fields:
-- id
-- user_id
-- post_id
-- content
-- created_at
-
----
-
-# 9. Future Improvements
-
-Possible future enhancements:
-- Markdown editor
-- Rich text editor
-- Image upload support
-- SEO optimization
-- Search functionality
-- Tags and categories
-- Analytics dashboard
-- Email newsletter
-- Dark mode
-- CI/CD pipeline
-- Docker support
-
----
-
-# 10. Deployment Plan
-
-## Frontend
-Deploy using:
+## DevOps / Deployment
+- Docker
+- Docker Compose
 - Vercel
 
-## Backend
-Possible deployment platforms:
-- Railway
-- Render
+---
 
-## Database
-Possible cloud database providers:
-- Neon
-- Supabase PostgreSQL
+# 🚀 Features
+
+## Public Features
+- View blog posts
+- Read articles in English or Vietnamese
+- Browse learning experiences and technical content
+- View comments
+
+## Authentication Features
+- User registration
+- User login
+- JWT-based authentication
+
+## Comment Features
+Authenticated users can:
+- leave comments
+
+## Admin Features
+Only the blog owner (admin) can:
+- Create posts
+- Edit posts
+- Delete posts
+- Manage comments
+- Manage published content
 
 ---
 
-# 11. Development Timeline
+# 🌐 Multi-language Strategy
 
-## Week 1
-- Project setup
+The project supports:
+- English
+- Vietnamese
+
+The multilingual system is separated into 2 different parts:
+
+---
+
+## 1. UI Translation
+
+UI text uses translation files.
+
+Example:
+
+```bash
+/messages
+  en.json
+  vi.json
+```
+
+This is suitable for:
+- Buttons
+- Labels
+- Navigation
+- Validation messages
+- Authentication pages
+- Notifications
+- Static UI text
+
+Example:
+
+```json
+// en.json
+{
+  "login": "Login"
+}
+```
+
+```json
+// vi.json
+{
+  "login": "Đăng nhập"
+}
+```
+
+---
+
+## 2. Blog Content Translation
+
+Blog content uses separate database columns.
+
+Example:
+
+| Column | Description |
+|---|---|
+| title_en | English title |
+| title_vi | Vietnamese title |
+| content_en | English content |
+| content_vi | Vietnamese content |
+
+Example Entity:
+
+```java
+private String titleEn;
+private String titleVi;
+
+@Column(columnDefinition = "TEXT")
+private String contentEn;
+
+@Column(columnDefinition = "TEXT")
+private String contentVi;
+```
+
+---
+
+
+# 📂 Project Structure
+
+## Frontend Repository
+
+```bash
+selfblog-frontend/
+│
+├── app/
+├── components/
+├── messages/
+├── services/
+├── lib/
+└── public/
+```
+
+---
+
+## Backend Repository
+
+```bash
+selfblog-backend/
+│
+├── src/
+├── docker/
+├── compose.yml
+└── Dockerfile
+```
+
+---
+
+# 🐳 Docker Setup
+
+Backend and Database run using Docker Compose.
+
+Example:
+
+```yaml
+services:
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: selfblog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+```
+
+---
+
+# 🔐 Authorization Model
+
+| Role | Permissions |
+|---|---|
+| Guest | Read posts |
+| User | Read + comment |
+| Admin | Full CRUD access |
+
+
+# 📖 Learning Goals
+
+This project is created to practice:
 - Database design
-- Authentication
-- Basic CRUD APIs
-- Frontend layout
-- Language switch
-- Initial deployment
-
-## Week 2
-- UI improvements
-- Comment system
-- Responsive optimization
-- Production environment setup
-- Deployment polishing
-- Testing and bug fixes
+- Multi-language systems
+- Docker & deployment workflows
+- Production architecture
 
 ---
 
-# 12. Expected Outcomes
+# ⚙️ Development Setup
 
-After completing the project, the developer should:
-- Understand full-stack development workflow
-- Gain deployment experience
-- Learn authentication implementation
-- Improve frontend/backend integration skills
-- Build a professional personal portfolio project
+## Frontend
 
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## Backend
+
+```bash
+./mvnw spring-boot:run
+```
+
+---
+
+# 📄 License
+
+This project is created for educational and personal development purposes.

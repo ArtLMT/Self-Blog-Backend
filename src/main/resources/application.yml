@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: selfblog
+  datasource:
+    url: jdbc:postgresql://localhost:5432/selfblog?options=-c%20timezone=UTC
+    username: root
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+  jackson:
+    time-zone: UTC
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+

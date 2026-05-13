@@ -1,9 +1,10 @@
-package com.lmt.selfblog.service;
+package com.lmt.selfblog.service.impl;
 
 import com.lmt.selfblog.dto.request.PostRequestDTO;
 import com.lmt.selfblog.dto.response.PostResponseDTO;
 import com.lmt.selfblog.model.Post;
 import com.lmt.selfblog.repository.PostRepository;
+import com.lmt.selfblog.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

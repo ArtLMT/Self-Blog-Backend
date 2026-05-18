@@ -7,4 +7,6 @@ import com.lmt.selfblog.dto.response.AuthResponseDTO;
 public interface AuthService {
     AuthResponseDTO login(LoginRequestDTO request);
     AuthResponseDTO register(RegisterRequestDTO request);
+    void logout();
+
 }

@@ -1,4 +1,4 @@
-package com.lmt.selfblog.model;
+package com.lmt.selfblog.entity;
 
 public enum Role {
     GUEST,

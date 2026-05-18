@@ -1,4 +1,4 @@
-package com.lmt.selfblog.model;
+package com.lmt.selfblog.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +14,6 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

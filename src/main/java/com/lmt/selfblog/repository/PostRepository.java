@@ -1,6 +1,6 @@
 package com.lmt.selfblog.repository;
 
-import com.lmt.selfblog.model.Post;
+import com.lmt.selfblog.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

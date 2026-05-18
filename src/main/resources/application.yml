@@ -19,3 +19,9 @@ spring:
         jdbc:
           time_zone: UTC
 
+jwt:
+  secret: "9a4f2c5d8e1a3b7f6c8d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
+  expiration:
+    access: 86400000 # 24 hours (in milliseconds)
+    refresh: 604800000 # 7 days (in milliseconds)
+#  expiration: 30000

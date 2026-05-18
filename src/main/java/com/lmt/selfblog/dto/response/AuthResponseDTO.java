@@ -12,14 +12,17 @@ import lombok.Getter;
 public class AuthResponseDTO {
 
     @Schema(description = "JWT access token")
-    private String token;
+    private String accessToken;
 
-    @Schema(description = "Token type", example = "Bearer")
-    private String tokenType;
+    @Schema(description = "JWT refresh token")
+    private String refreshToken;
 
-    @Schema(description = "Username of the authenticated user")
-    private String username;
-
-    @Schema(description = "Role of the authenticated user")
-    private String role;
+//    @Schema(description = "Token type", example = "Bearer")
+//    private String tokenType;
+//
+//    @Schema(description = "Username of the authenticated user")
+//    private String username;
+//
+//    @Schema(description = "Role of the authenticated user")
+//    private String role;
 }

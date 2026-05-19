@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,10 +54,11 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.<PostResponseDTO>builder()
                 .success(true)
                 .message("Post retrieved successfully")
-                .data(postService.getPostById(id))
+                .data(postService.getPostResponse(id))
                 .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Create a post", description = "Creates a new blog post (requires authentication)")
@@ -73,6 +75,7 @@ public class PostController {
                 .build(), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Update a post", description = "Updates an existing blog post (requires authentication)")
@@ -90,13 +93,10 @@ public class PostController {
                 .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Delete a post", description = "Deletes a blog post by ID (requires authentication)")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Post deleted successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Post not found")
-    })
     public ResponseEntity<ApiResponse<Void>> deletePost(
             @Parameter(description = "ID of the post") @PathVariable Long id) {
         postService.deletePost(id);
@@ -107,6 +107,7 @@ public class PostController {
                 .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/all")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Get all posts (admin)", description = "Returns all posts including unpublished (requires authentication)")

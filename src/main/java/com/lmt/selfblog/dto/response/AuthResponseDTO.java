@@ -20,9 +20,9 @@ public class AuthResponseDTO {
 //    @Schema(description = "Token type", example = "Bearer")
 //    private String tokenType;
 //
-//    @Schema(description = "Username of the authenticated user")
-//    private String username;
+    @Schema(description = "Username of the authenticated user")
+    private String username;
 //
-//    @Schema(description = "Role of the authenticated user")
-//    private String role;
+    @Schema(description = "Role of the authenticated user")
+    private String role;
 }

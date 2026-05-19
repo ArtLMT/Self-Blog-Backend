@@ -1,8 +1,10 @@
 package com.lmt.selfblog.service.impl;
 
+import com.lmt.selfblog.common.ErrorCode;
 import com.lmt.selfblog.dto.request.PostRequestDTO;
 import com.lmt.selfblog.dto.response.PostResponseDTO;
 import com.lmt.selfblog.entity.Post;
+import com.lmt.selfblog.exception.NotFoundException;
 import com.lmt.selfblog.repository.PostRepository;
 import com.lmt.selfblog.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +33,14 @@ public class PostServiceImpl implements PostService {
                 .collect(Collectors.toList());
     }
 
+    public PostResponseDTO getPostResponse(Long id) {
+        return this.mapToDTO(this.getPostById(id));
+    }
+
     @Override
-    public PostResponseDTO getPostById(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-        return mapToDTO(post);
+    public Post getPostById(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND, String.format("Post with ID %d not found", id)));
     }
 
     @Override
@@ -54,8 +59,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseDTO updatePost(Long id, PostRequestDTO postRequestDTO) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
+        Post post = this.getPostById(id);
         
         post.setTitleEn(postRequestDTO.getTitleEn());
         post.setTitleVi(postRequestDTO.getTitleVi());
@@ -69,6 +73,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deletePost(Long id) {
+        getPostById(id);
         postRepository.deleteById(id);
     }
 

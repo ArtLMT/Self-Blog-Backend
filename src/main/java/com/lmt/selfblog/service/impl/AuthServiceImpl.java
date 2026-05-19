@@ -6,6 +6,7 @@ import com.lmt.selfblog.dto.request.RegisterRequestDTO;
 import com.lmt.selfblog.dto.response.AuthResponseDTO;
 import com.lmt.selfblog.entity.RefreshToken;
 import com.lmt.selfblog.exception.ConflictException;
+import com.lmt.selfblog.exception.NotFoundException;
 import com.lmt.selfblog.exception.UnauthorizedException;
 import com.lmt.selfblog.entity.Role;
 import com.lmt.selfblog.entity.User;
@@ -56,8 +57,8 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
 //                .tokenType("Bearer")
-//                .username(user.getUsername())
-//                .role(user.getRole().name())
+                .username(user.getUsername())
+                .role(user.getRole().name())
                 .build();
     }
 
@@ -95,8 +96,8 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
 //                .tokenType("Bearer")
-//                .username(user.getUsername())
-//                .role(user.getRole().name())
+                .username(user.getUsername())
+                .role(user.getRole().name())
                 .build();
     }
 
@@ -107,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
             String username = authentication.getName();
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() ->
-                            new RuntimeException("User not found with username: " + username)
+                            new NotFoundException(ErrorCode.USER_NOT_FOUND, "User not found: " + username)
                     );
             refreshTokenService.revokeRefreshToken(user);
         }

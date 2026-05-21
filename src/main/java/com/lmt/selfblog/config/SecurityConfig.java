@@ -6,7 +6,6 @@ import com.lmt.selfblog.security.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,11 +26,6 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
-    private static final String[] PUBLIC_GET_URLS = {
-            "/api/posts",
-            "/api/posts/{id}"
-    };
-
     private static final String[] PUBLIC_ALL_URLS = {
             "/api/auth/**",
             // Swagger UI & OpenAPI docs
@@ -48,8 +42,6 @@ public class SecurityConfig {
 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public GET endpoints (read only)
-                .requestMatchers(HttpMethod.GET, PUBLIC_GET_URLS).permitAll()
                 // Other public endpoints (auth, swagger)
                 .requestMatchers(PUBLIC_ALL_URLS).permitAll()
                 // All other requests require authentication

@@ -13,10 +13,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @Table(name = "refresh_tokens")
-public class RefreshToken {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RefreshToken extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String token;
@@ -28,6 +25,7 @@ public class RefreshToken {
     @Column(nullable = false)
     private Instant expiryDate;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean revoked = false;
 }

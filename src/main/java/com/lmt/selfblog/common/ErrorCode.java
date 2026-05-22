@@ -67,6 +67,32 @@ public enum ErrorCode {
             "post.notFound"
     ),
 
+    /* ===================== NARRATIVE ===================== */
+    ARC_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "arc.notFound"
+    ),
+
+    CHAPTER_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "chapter.notFound"
+    ),
+
+    EPISODE_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "episode.notFound"
+    ),
+
+    MARGIN_NOTE_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "marginNote.notFound"
+    ),
+
+    SLUG_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "narrative.slugAlreadyExists"
+    ),
+
     /* ===================== VALIDATION ===================== */
     VALIDATION_FAILED(
             HttpStatus.BAD_REQUEST,

@@ -8,8 +8,11 @@ import java.util.TimeZone;
 @SpringBootApplication
 public class SelfblogApplication {
 
-    public static void main(String[] args) {
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
 
+    public static void main(String[] args) {
         SpringApplication.run(SelfblogApplication.class, args);
     }
 

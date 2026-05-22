@@ -28,6 +28,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ALL_URLS = {
             "/api/auth/**",
+            "/api/public/**",
             // Swagger UI & OpenAPI docs
             "/swagger-ui/**",
             "/swagger-ui.html",

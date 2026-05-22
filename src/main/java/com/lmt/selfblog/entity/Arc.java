@@ -1,6 +1,6 @@
 package com.lmt.selfblog.entity;
 
-import com.lmt.selfblog.common.ArcStatus;
+import com.lmt.selfblog.common.ContentStatus;
 import com.lmt.selfblog.common.Visibility;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -44,7 +44,7 @@ public class Arc extends AuditableEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private ArcStatus status;
+    private ContentStatus status;
 
     @OneToMany(mappedBy = "arc", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @OrderBy("orderIndex ASC")

@@ -1,6 +1,6 @@
 package com.lmt.selfblog.entity;
 
-import com.lmt.selfblog.common.ChapterStatus;
+import com.lmt.selfblog.common.ContentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +41,7 @@ public class Chapter extends AuditableEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private ChapterStatus status;
+    private ContentStatus status;
 
     @Column(name = "reading_time_minutes")
     private Integer readingTimeMinutes;

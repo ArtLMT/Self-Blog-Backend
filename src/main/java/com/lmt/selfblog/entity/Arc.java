@@ -20,14 +20,8 @@ import java.util.Set;
 @Setter
 public class Arc extends AuditableEntity {
 
-    @Column(name = "title", nullable = false, length = 255)
-    private String title;
-
     @Column(name = "slug", nullable = false, unique = true, length = 255)
     private String slug;
-
-    @Column(name = "summary", length = 1000)
-    private String summary;
 
     @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
@@ -58,5 +52,18 @@ public class Arc extends AuditableEntity {
     public void removeChapter(Chapter chapter) {
         chapters.remove(chapter);
         chapter.setArc(null);
+    }
+
+    @OneToMany(mappedBy = "arc", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ArcTranslation> translations = new LinkedHashSet<>();
+
+    public void addTranslation(ArcTranslation translation) {
+        translations.add(translation);
+        translation.setArc(this);
+    }
+
+    public void removeTranslation(ArcTranslation translation) {
+        translations.remove(translation);
+        translation.setArc(null);
     }
 }

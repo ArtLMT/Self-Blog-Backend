@@ -25,23 +25,11 @@ public class Episode extends AuditableEntity {
     @JoinColumn(name = "chapter_id", nullable = false)
     private Chapter chapter;
 
-    @Column(name = "title", nullable = false, length = 255)
-    private String title;
-
     @Column(name = "slug", nullable = false, unique = true, length = 255)
     private String slug;
 
-    @Column(name = "markdown_content", nullable = false, columnDefinition = "TEXT")
-    private String markdownContent;
-
-    @Column(name = "rendered_content", nullable = false, columnDefinition = "TEXT")
-    private String renderedContent;
-
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
-
-    @Column(name = "conclusion", length = 1000)
-    private String conclusion;
 
     @Column(name = "event_date", nullable = false)
     private Instant eventDate;
@@ -61,5 +49,18 @@ public class Episode extends AuditableEntity {
     public void removeMarginNote(MarginNote note) {
         marginNotes.remove(note);
         note.setEpisode(null);
+    }
+
+    @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<EpisodeTranslation> translations = new LinkedHashSet<>();
+
+    public void addTranslation(EpisodeTranslation translation) {
+        translations.add(translation);
+        translation.setEpisode(this);
+    }
+
+    public void removeTranslation(EpisodeTranslation translation) {
+        translations.remove(translation);
+        translation.setEpisode(null);
     }
 }

@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
-
+import com.lmt.selfblog.common.Language;
 @Entity
 @Table(name = "users")
 @Getter
@@ -31,4 +31,9 @@ public class User extends BaseEntity {
     @CreationTimestamp
     @Column(updatable = false)
     private Instant createdAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Language languagePreference = Language.EN;
 }

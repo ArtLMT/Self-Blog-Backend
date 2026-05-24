@@ -2,10 +2,13 @@ package com.lmt.selfblog.service.impl;
 
 import com.lmt.selfblog.common.ContentStatus;
 import com.lmt.selfblog.common.ErrorCode;
+import com.lmt.selfblog.common.Language;
+import com.lmt.selfblog.common.LanguageResolver;
 import com.lmt.selfblog.common.Visibility;
 import com.lmt.selfblog.dto.request.ArcRequestDTO;
 import com.lmt.selfblog.dto.response.*;
 import com.lmt.selfblog.entity.Arc;
+import com.lmt.selfblog.entity.ArcTranslation;
 import com.lmt.selfblog.exception.ConflictException;
 import com.lmt.selfblog.exception.NotFoundException;
 import com.lmt.selfblog.mapper.ArcMapper;
@@ -41,6 +44,7 @@ public class ArcServiceImpl implements ArcService {
     private final ChapterMapper chapterMapper;
     private final EpisodeMapper episodeMapper;
     private final MarginNoteMapper marginNoteMapper;
+    private final LanguageResolver languageResolver;
 
     private static final List<ContentStatus> PUBLIC_ARC_STATUSES = List.of(ContentStatus.PUBLISHED);
     private static final List<ContentStatus> PUBLIC_CHAPTER_STATUSES = List.of(ContentStatus.PUBLISHED);
@@ -53,8 +57,15 @@ public class ArcServiceImpl implements ArcService {
             throw new ConflictException(ErrorCode.SLUG_ALREADY_EXISTS, "Arc slug already exists: " + request.getSlug());
         }
         Arc arc = arcMapper.toEntity(request);
+        
+        ArcTranslation translation = new ArcTranslation();
+        translation.setLanguage(request.getLanguage());
+        translation.setTitle(request.getTitle());
+        translation.setSummary(request.getSummary());
+        arc.addTranslation(translation);
+
         Arc saved = arcRepository.save(arc);
-        return arcMapper.toAdminDto(saved);
+        return arcMapper.toAdminDto(saved, request.getLanguage());
     }
 
     @Override
@@ -69,8 +80,22 @@ public class ArcServiceImpl implements ArcService {
         });
 
         arcMapper.updateEntity(request, arc);
+        
+        ArcTranslation translation = arc.getTranslations().stream()
+                .filter(t -> t.getLanguage() == request.getLanguage())
+                .findFirst()
+                .orElseGet(() -> {
+                    ArcTranslation newTrans = new ArcTranslation();
+                    newTrans.setLanguage(request.getLanguage());
+                    arc.addTranslation(newTrans);
+                    return newTrans;
+                });
+        
+        translation.setTitle(request.getTitle());
+        translation.setSummary(request.getSummary());
+
         Arc saved = arcRepository.save(arc);
-        return arcMapper.toAdminDto(saved);
+        return arcMapper.toAdminDto(saved, request.getLanguage());
     }
 
     @Override
@@ -78,14 +103,16 @@ public class ArcServiceImpl implements ArcService {
     public AdminArcResponseDTO getArcById(UUID id) {
         Arc arc = arcRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.ARC_NOT_FOUND, "Arc not found with ID: " + id));
-        return arcMapper.toAdminDto(arc);
+        Language lang = languageResolver.resolveLanguage();
+        return arcMapper.toAdminDto(arc, lang);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AdminArcResponseDTO> getAllArcsForAdmin() {
+        Language lang = languageResolver.resolveLanguage();
         return arcRepository.findAllByOrderByDisplayOrderAsc().stream()
-                .map(arcMapper::toAdminDto)
+                .map(arc -> arcMapper.toAdminDto(arc, lang))
                 .collect(Collectors.toList());
     }
 
@@ -93,7 +120,6 @@ public class ArcServiceImpl implements ArcService {
     public void deleteArc(UUID id) {
         Arc arc = arcRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.ARC_NOT_FOUND, "Arc not found with ID: " + id));
-        // Soft delete / Hide
         arc.setStatus(ContentStatus.DELETED);
         arc.setVisibility(Visibility.PRIVATE);
         arcRepository.save(arc);
@@ -102,33 +128,17 @@ public class ArcServiceImpl implements ArcService {
     @Override
     @Transactional(readOnly = true)
     public List<PublicArcResponseDTO> getAllPublicArcs() {
+        Language lang = languageResolver.resolveLanguage();
         return arcRepository.findByVisibilityAndStatusInOrderByDisplayOrderAsc(Visibility.PUBLIC, PUBLIC_ARC_STATUSES)
                 .stream()
                 .map(arc -> {
-                    PublicArcResponseDTO dto = arcMapper.toPublicDto(arc);
-                    // Filter and map public chapters
+                    PublicArcResponseDTO dto = arcMapper.toPublicDto(arc, lang);
                     Set<PublicChapterResponseDTO> chapters = chapterRepository
                             .findByArcSlugAndStatusInOrderByOrderIndexAsc(arc.getSlug(), PUBLIC_CHAPTER_STATUSES)
                             .stream()
                             .map(chapter -> {
-                                PublicChapterResponseDTO cDto = chapterMapper.toPublicDto(chapter);
-                                // Filter and map public episodes
-                                Set<PublicEpisodeResponseDTO> episodes = episodeRepository
-                                        .findByChapterSlugAndStatusInOrderByOrderIndexAsc(chapter.getSlug(), PUBLIC_EPISODE_STATUSES)
-                                        .stream()
-                                        .map(episode -> {
-                                            PublicEpisodeResponseDTO eDto = episodeMapper.toPublicDto(episode);
-                                            // Filter and map public notes
-                                            Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
-                                                    .findByEpisodeSlugAndVisibilityIn(episode.getSlug(), PUBLIC_NOTE_VISIBILITIES)
-                                                    .stream()
-                                                    .map(marginNoteMapper::toPublicDto)
-                                                    .collect(Collectors.toCollection(LinkedHashSet::new));
-                                            eDto.setMarginNotes(notes);
-                                            return eDto;
-                                        })
-                                        .collect(Collectors.toCollection(LinkedHashSet::new));
-                                cDto.setEpisodes(episodes);
+                                PublicChapterResponseDTO cDto = chapterMapper.toPublicDto(chapter, lang);
+                                cDto.setEpisodes(buildPublicEpisodes(chapter.getSlug(), lang));
                                 return cDto;
                             })
                             .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -144,36 +154,45 @@ public class ArcServiceImpl implements ArcService {
         Arc arc = arcRepository.findBySlugAndVisibilityAndStatusIn(slug, Visibility.PUBLIC, PUBLIC_ARC_STATUSES)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.ARC_NOT_FOUND, "Public Arc not found with slug: " + slug));
 
-        PublicArcResponseDTO dto = arcMapper.toPublicDto(arc);
+        Language lang = languageResolver.resolveLanguage();
+        PublicArcResponseDTO dto = arcMapper.toPublicDto(arc, lang);
 
-        // Filter and map public chapters
         Set<PublicChapterResponseDTO> chapters = chapterRepository
                 .findByArcSlugAndStatusInOrderByOrderIndexAsc(slug, PUBLIC_CHAPTER_STATUSES)
                 .stream()
                 .map(chapter -> {
-                    PublicChapterResponseDTO cDto = chapterMapper.toPublicDto(chapter);
-                    // Filter and map public episodes
-                    Set<PublicEpisodeResponseDTO> episodes = episodeRepository
-                            .findByChapterSlugAndStatusInOrderByOrderIndexAsc(chapter.getSlug(), PUBLIC_EPISODE_STATUSES)
-                            .stream()
-                            .map(episode -> {
-                                PublicEpisodeResponseDTO eDto = episodeMapper.toPublicDto(episode);
-                                // Filter and map public notes
-                                Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
-                                        .findByEpisodeSlugAndVisibilityIn(episode.getSlug(), PUBLIC_NOTE_VISIBILITIES)
-                                        .stream()
-                                        .map(marginNoteMapper::toPublicDto)
-                                        .collect(Collectors.toCollection(LinkedHashSet::new));
-                                eDto.setMarginNotes(notes);
-                                return eDto;
-                            })
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
-                    cDto.setEpisodes(episodes);
+                    PublicChapterResponseDTO cDto = chapterMapper.toPublicDto(chapter, lang);
+                    cDto.setEpisodes(buildPublicEpisodes(chapter.getSlug(), lang));
                     return cDto;
                 })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         dto.setChapters(chapters);
         return dto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TimelineItemDTO> getTimeline() {
+        Language lang = languageResolver.resolveLanguage();
+        return arcRepository.findTimeline(lang);
+    }
+
+    /*TODO: duplicate code */
+    private Set<PublicEpisodeResponseDTO> buildPublicEpisodes(String chapterSlug, Language lang) {
+        return episodeRepository
+                .findByChapterSlugAndStatusInOrderByOrderIndexAsc(chapterSlug, PUBLIC_EPISODE_STATUSES)
+                .stream()
+                .map(episode -> {
+                    PublicEpisodeResponseDTO eDto = episodeMapper.toPublicDto(episode, lang);
+                    Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
+                            .findByEpisodeSlugAndVisibilityIn(episode.getSlug(), PUBLIC_NOTE_VISIBILITIES)
+                            .stream()
+                            .map(note -> marginNoteMapper.toPublicDto(note, lang))
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
+                    eDto.setMarginNotes(notes);
+                    return eDto;
+                })
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

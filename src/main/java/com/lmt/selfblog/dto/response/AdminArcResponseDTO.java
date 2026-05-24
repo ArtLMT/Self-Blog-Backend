@@ -1,6 +1,7 @@
 package com.lmt.selfblog.dto.response;
 
 import com.lmt.selfblog.common.ContentStatus;
+import com.lmt.selfblog.common.Language;
 import com.lmt.selfblog.common.Visibility;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Data
 public class AdminArcResponseDTO {
     private UUID id;
+    private Language language;
     private String title;
     private String slug;
     private String summary;

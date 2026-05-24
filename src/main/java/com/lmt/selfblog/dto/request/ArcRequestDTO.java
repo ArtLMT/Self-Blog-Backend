@@ -1,6 +1,7 @@
 package com.lmt.selfblog.dto.request;
 
 import com.lmt.selfblog.common.ContentStatus;
+import com.lmt.selfblog.common.Language;
 import com.lmt.selfblog.common.Visibility;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -13,6 +14,10 @@ import java.time.Instant;
 @Data
 @Schema(description = "Payload for creating or updating an Arc")
 public class ArcRequestDTO {
+
+    @NotNull(message = "Language is required")
+    @Schema(description = "Language of the translation", example = "EN")
+    private Language language;
 
     @NotBlank(message = "Title is required")
     @Size(max = 255, message = "Title cannot exceed 255 characters")

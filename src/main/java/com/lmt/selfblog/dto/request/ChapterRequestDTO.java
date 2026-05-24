@@ -1,6 +1,7 @@
 package com.lmt.selfblog.dto.request;
 
 import com.lmt.selfblog.common.ContentStatus;
+import com.lmt.selfblog.common.Language;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +14,10 @@ import java.util.UUID;
 @Data
 @Schema(description = "Payload for creating or updating a Chapter")
 public class ChapterRequestDTO {
+
+    @NotNull(message = "Language is required")
+    @Schema(description = "Language of the translation", example = "EN")
+    private Language language;
 
     @NotNull(message = "Arc ID is required")
     @Schema(description = "UUID of the parent Arc", example = "550e8400-e29b-41d4-a716-446655440000")

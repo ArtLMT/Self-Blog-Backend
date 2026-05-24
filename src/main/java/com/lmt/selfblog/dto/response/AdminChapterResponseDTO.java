@@ -1,6 +1,7 @@
 package com.lmt.selfblog.dto.response;
 
 import com.lmt.selfblog.common.ContentStatus;
+import com.lmt.selfblog.common.Language;
 import lombok.Data;
 
 import java.time.Instant;
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Data
 public class AdminChapterResponseDTO {
     private UUID id;
+    private Language language;
     private UUID arcId;
     private String title;
     private String slug;

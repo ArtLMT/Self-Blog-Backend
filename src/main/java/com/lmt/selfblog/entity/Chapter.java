@@ -24,17 +24,8 @@ public class Chapter extends AuditableEntity {
     @JoinColumn(name = "arc_id", nullable = false)
     private Arc arc;
 
-    @Column(name = "title", nullable = false, length = 255)
-    private String title;
-
     @Column(name = "slug", nullable = false, unique = true, length = 255)
     private String slug;
-
-    @Column(name = "quote", length = 500)
-    private String quote;
-
-    @Column(name = "summary", length = 1000)
-    private String summary;
 
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
@@ -66,5 +57,18 @@ public class Chapter extends AuditableEntity {
     // Business rule: Can only publish if at least 3 episodes exist
     public boolean canPublish() {
         return episodes.size() >= 3;
+    }
+
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ChapterTranslation> translations = new LinkedHashSet<>();
+
+    public void addTranslation(ChapterTranslation translation) {
+        translations.add(translation);
+        translation.setChapter(this);
+    }
+
+    public void removeTranslation(ChapterTranslation translation) {
+        translations.remove(translation);
+        translation.setChapter(null);
     }
 }

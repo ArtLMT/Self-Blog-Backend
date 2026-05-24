@@ -17,13 +17,23 @@ public class MarginNote extends AuditableEntity {
     @JoinColumn(name = "episode_id", nullable = false)
     private Episode episode;
 
-    @Column(name = "note_content", nullable = false, columnDefinition = "TEXT")
-    private String noteContent;
-
     @Column(name = "anchor_position", nullable = false, length = 255)
     private String anchorPosition;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false, length = 50)
     private Visibility visibility;
+
+    @OneToMany(mappedBy = "marginNote", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.Set<MarginNoteTranslation> translations = new java.util.LinkedHashSet<>();
+
+    public void addTranslation(MarginNoteTranslation translation) {
+        translations.add(translation);
+        translation.setMarginNote(this);
+    }
+
+    public void removeTranslation(MarginNoteTranslation translation) {
+        translations.remove(translation);
+        translation.setMarginNote(null);
+    }
 }

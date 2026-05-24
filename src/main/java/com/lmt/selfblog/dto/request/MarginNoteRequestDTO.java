@@ -1,6 +1,7 @@
 package com.lmt.selfblog.dto.request;
 
 import com.lmt.selfblog.common.Visibility;
+import com.lmt.selfblog.common.Language;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,10 @@ import java.util.UUID;
 @Data
 @Schema(description = "Payload for creating or updating a Margin Note")
 public class MarginNoteRequestDTO {
+
+    @NotNull(message = "Language is required")
+    @Schema(description = "Language of the translation", example = "EN")
+    private Language language;
 
     @NotNull(message = "Episode ID is required")
     @Schema(description = "UUID of the parent Episode")

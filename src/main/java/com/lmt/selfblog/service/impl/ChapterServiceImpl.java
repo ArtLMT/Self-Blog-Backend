@@ -2,6 +2,8 @@ package com.lmt.selfblog.service.impl;
 
 import com.lmt.selfblog.common.ContentStatus;
 import com.lmt.selfblog.common.ErrorCode;
+import com.lmt.selfblog.common.Language;
+import com.lmt.selfblog.common.LanguageResolver;
 import com.lmt.selfblog.common.Visibility;
 import com.lmt.selfblog.dto.request.ChapterRequestDTO;
 import com.lmt.selfblog.dto.response.AdminChapterResponseDTO;
@@ -10,6 +12,7 @@ import com.lmt.selfblog.dto.response.PublicEpisodeResponseDTO;
 import com.lmt.selfblog.dto.response.PublicMarginNoteResponseDTO;
 import com.lmt.selfblog.entity.Arc;
 import com.lmt.selfblog.entity.Chapter;
+import com.lmt.selfblog.entity.ChapterTranslation;
 import com.lmt.selfblog.exception.ConflictException;
 import com.lmt.selfblog.exception.NotFoundException;
 import com.lmt.selfblog.mapper.ChapterMapper;
@@ -43,6 +46,7 @@ public class ChapterServiceImpl implements ChapterService {
     private final ChapterMapper chapterMapper;
     private final EpisodeMapper episodeMapper;
     private final MarginNoteMapper marginNoteMapper;
+    private final LanguageResolver languageResolver;
 
     private static final List<ContentStatus> PUBLIC_CHAPTER_STATUSES = List.of(ContentStatus.PUBLISHED);
     private static final List<ContentStatus> PUBLIC_EPISODE_STATUSES = List.of(ContentStatus.PUBLISHED);
@@ -59,8 +63,16 @@ public class ChapterServiceImpl implements ChapterService {
 
         Chapter chapter = chapterMapper.toEntity(request);
         chapter.setArc(arc);
+        
+        ChapterTranslation translation = new ChapterTranslation();
+        translation.setLanguage(request.getLanguage());
+        translation.setTitle(request.getTitle());
+        translation.setQuote(request.getQuote());
+        translation.setSummary(request.getSummary());
+        chapter.addTranslation(translation);
+
         Chapter saved = chapterRepository.save(chapter);
-        return chapterMapper.toAdminDto(saved);
+        return chapterMapper.toAdminDto(saved, request.getLanguage());
     }
 
     @Override
@@ -79,8 +91,23 @@ public class ChapterServiceImpl implements ChapterService {
 
         chapterMapper.updateEntity(request, chapter);
         chapter.setArc(arc);
+        
+        ChapterTranslation translation = chapter.getTranslations().stream()
+                .filter(t -> t.getLanguage() == request.getLanguage())
+                .findFirst()
+                .orElseGet(() -> {
+                    ChapterTranslation newTrans = new ChapterTranslation();
+                    newTrans.setLanguage(request.getLanguage());
+                    chapter.addTranslation(newTrans);
+                    return newTrans;
+                });
+        
+        translation.setTitle(request.getTitle());
+        translation.setQuote(request.getQuote());
+        translation.setSummary(request.getSummary());
+
         Chapter saved = chapterRepository.save(chapter);
-        return chapterMapper.toAdminDto(saved);
+        return chapterMapper.toAdminDto(saved, request.getLanguage());
     }
 
     @Override
@@ -88,14 +115,16 @@ public class ChapterServiceImpl implements ChapterService {
     public AdminChapterResponseDTO getChapterById(UUID id) {
         Chapter chapter = chapterRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.CHAPTER_NOT_FOUND, "Chapter not found with ID: " + id));
-        return chapterMapper.toAdminDto(chapter);
+        Language lang = languageResolver.resolveLanguage();
+        return chapterMapper.toAdminDto(chapter, lang);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AdminChapterResponseDTO> getChaptersByArcId(UUID arcId) {
+        Language lang = languageResolver.resolveLanguage();
         return chapterRepository.findByArcIdOrderByOrderIndexAsc(arcId).stream()
-                .map(chapterMapper::toAdminDto)
+                .map(c -> chapterMapper.toAdminDto(c, lang))
                 .collect(Collectors.toList());
     }
 
@@ -103,7 +132,6 @@ public class ChapterServiceImpl implements ChapterService {
     public void deleteChapter(UUID id) {
         Chapter chapter = chapterRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.CHAPTER_NOT_FOUND, "Chapter not found with ID: " + id));
-        // Soft delete: Mark status as DELETED
         chapter.setStatus(ContentStatus.DELETED);
         chapterRepository.save(chapter);
     }
@@ -111,27 +139,12 @@ public class ChapterServiceImpl implements ChapterService {
     @Override
     @Transactional(readOnly = true)
     public List<PublicChapterResponseDTO> getPublicChaptersByArc(String arcSlug) {
+        Language lang = languageResolver.resolveLanguage();
         return chapterRepository.findByArcSlugAndStatusInOrderByOrderIndexAsc(arcSlug, PUBLIC_CHAPTER_STATUSES)
                 .stream()
                 .map(chapter -> {
-                    PublicChapterResponseDTO dto = chapterMapper.toPublicDto(chapter);
-                    // Filter and map public episodes
-                    Set<PublicEpisodeResponseDTO> episodes = episodeRepository
-                            .findByChapterSlugAndStatusInOrderByOrderIndexAsc(chapter.getSlug(), PUBLIC_EPISODE_STATUSES)
-                            .stream()
-                            .map(episode -> {
-                                PublicEpisodeResponseDTO eDto = episodeMapper.toPublicDto(episode);
-                                // Filter and map public notes
-                                Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
-                                        .findByEpisodeSlugAndVisibilityIn(episode.getSlug(), PUBLIC_NOTE_VISIBILITIES)
-                                        .stream()
-                                        .map(marginNoteMapper::toPublicDto)
-                                        .collect(Collectors.toCollection(LinkedHashSet::new));
-                                eDto.setMarginNotes(notes);
-                                return eDto;
-                            })
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
-                    dto.setEpisodes(episodes);
+                    PublicChapterResponseDTO dto = chapterMapper.toPublicDto(chapter, lang);
+                    dto.setEpisodes(buildPublicEpisodes(chapter.getSlug(), lang));
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -143,26 +156,26 @@ public class ChapterServiceImpl implements ChapterService {
         Chapter chapter = chapterRepository.findBySlugAndStatusIn(slug, PUBLIC_CHAPTER_STATUSES)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.CHAPTER_NOT_FOUND, "Public Chapter not found with slug: " + slug));
 
-        PublicChapterResponseDTO dto = chapterMapper.toPublicDto(chapter);
+        Language lang = languageResolver.resolveLanguage();
+        PublicChapterResponseDTO dto = chapterMapper.toPublicDto(chapter, lang);
+        dto.setEpisodes(buildPublicEpisodes(slug, lang));
+        return dto;
+    }
 
-        // Filter and map public episodes
-        Set<PublicEpisodeResponseDTO> episodes = episodeRepository
-                .findByChapterSlugAndStatusInOrderByOrderIndexAsc(slug, PUBLIC_EPISODE_STATUSES)
+    private Set<PublicEpisodeResponseDTO> buildPublicEpisodes(String chapterSlug, Language lang) {
+        return episodeRepository
+                .findByChapterSlugAndStatusInOrderByOrderIndexAsc(chapterSlug, PUBLIC_EPISODE_STATUSES)
                 .stream()
                 .map(episode -> {
-                    PublicEpisodeResponseDTO eDto = episodeMapper.toPublicDto(episode);
-                    // Filter and map public notes
+                    PublicEpisodeResponseDTO eDto = episodeMapper.toPublicDto(episode, lang);
                     Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
                             .findByEpisodeSlugAndVisibilityIn(episode.getSlug(), PUBLIC_NOTE_VISIBILITIES)
                             .stream()
-                            .map(marginNoteMapper::toPublicDto)
+                            .map(note -> marginNoteMapper.toPublicDto(note, lang))
                             .collect(Collectors.toCollection(LinkedHashSet::new));
                     eDto.setMarginNotes(notes);
                     return eDto;
                 })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        dto.setEpisodes(episodes);
-        return dto;
     }
 }

@@ -37,9 +37,6 @@ public class EpisodeRequestDTO {
     @Schema(description = "Original Markdown format content")
     private String markdownContent;
 
-    @NotBlank(message = "Rendered HTML content is required")
-    @Schema(description = "Rendered HTML content")
-    private String renderedContent;
 
     @NotNull(message = "Order index is required")
     @Schema(description = "Episode ordering sequence within the Chapter", example = "1")

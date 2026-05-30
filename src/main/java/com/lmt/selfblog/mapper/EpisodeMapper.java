@@ -17,7 +17,6 @@ public abstract class EpisodeMapper {
     @Mapping(target = "chapterSlug", source = "chapter.slug")
     @Mapping(target = "title", expression = "java(getTranslation(episode, lang).getTitle())")
     @Mapping(target = "markdownContent", expression = "java(getTranslation(episode, lang).getMarkdownContent())")
-    @Mapping(target = "renderedContent", expression = "java(getTranslation(episode, lang).getRenderedContent())")
     @Mapping(target = "conclusion", expression = "java(getTranslation(episode, lang).getConclusion())")
     @Mapping(target = "language", expression = "java(lang)")
     public abstract PublicEpisodeResponseDTO toPublicDto(Episode episode, @Context Language lang);
@@ -25,7 +24,6 @@ public abstract class EpisodeMapper {
     @Mapping(target = "chapterId", source = "chapter.id")
     @Mapping(target = "title", expression = "java(getTranslation(episode, lang).getTitle())")
     @Mapping(target = "markdownContent", expression = "java(getTranslation(episode, lang).getMarkdownContent())")
-    @Mapping(target = "renderedContent", expression = "java(getTranslation(episode, lang).getRenderedContent())")
     @Mapping(target = "conclusion", expression = "java(getTranslation(episode, lang).getConclusion())")
     @Mapping(target = "language", expression = "java(lang)")
     public abstract AdminEpisodeResponseDTO toAdminDto(Episode episode, @Context Language lang);

@@ -126,7 +126,26 @@ public class GlobalExceptionHandler {
     }
 
     // -------------------------------------------------------------------------
-    // 5. Fallback — anything not matched above
+    // 5. Spring MVC — Static Resource Not Found
+    // -------------------------------------------------------------------------
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex,
+            HttpServletRequest request,
+            Locale locale
+    ) {
+        log.warn("[RESOURCE_NOT_FOUND] Static resource not found: {} — path={}", ex.getMessage(), request.getRequestURI());
+
+        String message = "Requested resource not found: " + ex.getResourcePath();
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(message, "RESOURCE_NOT_FOUND"));
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Fallback — anything not matched above
     // -------------------------------------------------------------------------
 
     @ExceptionHandler(Exception.class)

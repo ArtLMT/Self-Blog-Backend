@@ -16,8 +16,8 @@ VALUES ('c0000000-0000-0000-0000-000000000001', 'EN', 'The Early Days', 'Every e
 INSERT INTO episodes (id, chapter_id, slug, order_index, event_date, status, created_at, updated_at)
 VALUES ('e0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'discovering-programming', 1, '2020-01-15 00:00:00', 'PUBLISHED', now() at time zone 'utc', now() at time zone 'utc');
 
-INSERT INTO episode_translations (episode_id, language, title, markdown_content, rendered_content, conclusion)
-VALUES ('e0000000-0000-0000-0000-000000000001', 'EN', 'Discovering Programming', 'It all started when I was playing a video game and wanted to create my own... \n\n```python\nprint("Hello World")\n```', '<p>It all started when I was playing a video game and wanted to create my own...</p><pre><code class="language-python">print(&quot;Hello World&quot;)</code></pre>', 'And that was the beginning of my journey.');
+INSERT INTO episode_translations (episode_id, language, title, markdown_content, conclusion)
+VALUES ('e0000000-0000-0000-0000-000000000001', 'EN', 'Discovering Programming', 'It all started when I was playing a video game and wanted to create my own... \n\n```python\nprint("Hello World")\n```', 'And that was the beginning of my journey.');
 
 -- Insert Mock Margin Note 1 for Episode 1
 INSERT INTO margin_notes (id, episode_id, anchor_position, visibility, created_at, updated_at)

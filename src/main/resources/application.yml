@@ -33,6 +33,11 @@ jwt:
     access: 86400000 # 24 hours (in milliseconds)
     refresh: 604800000 # 7 days (in milliseconds)
 
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4200,http://localhost:8080}
+
+
 server:
   tomcat:
     uri-encoding: UTF-8

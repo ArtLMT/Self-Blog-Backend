@@ -32,7 +32,6 @@ CREATE TABLE episode_translations (
     language VARCHAR(10) NOT NULL,
     title VARCHAR(255) NOT NULL,
     markdown_content TEXT NOT NULL,
-    rendered_content TEXT NOT NULL,
     conclusion VARCHAR(1000),
     CONSTRAINT fk_episode_trans_episode FOREIGN KEY (episode_id) REFERENCES episodes(id) ON DELETE CASCADE
 );

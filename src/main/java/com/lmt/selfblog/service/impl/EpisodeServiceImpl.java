@@ -62,7 +62,6 @@ public class EpisodeServiceImpl implements EpisodeService {
         translation.setLanguage(request.getLanguage());
         translation.setTitle(request.getTitle());
         translation.setMarkdownContent(request.getMarkdownContent());
-        translation.setRenderedContent(request.getRenderedContent());
         translation.setConclusion(request.getConclusion());
         episode.addTranslation(translation);
 
@@ -99,7 +98,6 @@ public class EpisodeServiceImpl implements EpisodeService {
         
         translation.setTitle(request.getTitle());
         translation.setMarkdownContent(request.getMarkdownContent());
-        translation.setRenderedContent(request.getRenderedContent());
         translation.setConclusion(request.getConclusion());
 
         Episode saved = episodeRepository.save(episode);

@@ -12,7 +12,6 @@ public class PublicEpisodeResponseDTO {
     private String title;
     private String slug;
     private String markdownContent;
-    private String renderedContent;
     private Integer orderIndex;
     private String conclusion;
     private Instant eventDate;

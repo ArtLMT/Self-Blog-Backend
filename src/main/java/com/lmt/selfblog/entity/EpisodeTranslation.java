@@ -28,8 +28,6 @@ public class EpisodeTranslation extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String markdownContent;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String renderedContent;
 
     @Column(length = 1000)
     private String conclusion;

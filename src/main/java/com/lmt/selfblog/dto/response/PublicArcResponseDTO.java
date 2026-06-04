@@ -4,7 +4,6 @@ import com.lmt.selfblog.common.Language;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.Set;
 
 @Data
 public class PublicArcResponseDTO {
@@ -15,5 +14,4 @@ public class PublicArcResponseDTO {
     private Integer displayOrder;
     private Instant startDate;
     private Instant endDate;
-    private Set<PublicChapterResponseDTO> chapters;
 }

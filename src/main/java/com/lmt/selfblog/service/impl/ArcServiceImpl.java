@@ -131,20 +131,7 @@ public class ArcServiceImpl implements ArcService {
         Language lang = languageResolver.resolveLanguage();
         return arcRepository.findByVisibilityAndStatusInOrderByDisplayOrderAsc(Visibility.PUBLIC, PUBLIC_ARC_STATUSES)
                 .stream()
-                .map(arc -> {
-                    PublicArcResponseDTO dto = arcMapper.toPublicDto(arc, lang);
-                    Set<PublicChapterResponseDTO> chapters = chapterRepository
-                            .findByArcSlugAndStatusInOrderByOrderIndexAsc(arc.getSlug(), PUBLIC_CHAPTER_STATUSES)
-                            .stream()
-                            .map(chapter -> {
-                                PublicChapterResponseDTO cDto = chapterMapper.toPublicDto(chapter, lang);
-                                cDto.setEpisodes(buildPublicEpisodes(chapter.getSlug(), lang));
-                                return cDto;
-                            })
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
-                    dto.setChapters(chapters);
-                    return dto;
-                })
+                .map(arc -> arcMapper.toPublicDto(arc, lang))
                 .collect(Collectors.toList());
     }
 
@@ -155,20 +142,7 @@ public class ArcServiceImpl implements ArcService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.ARC_NOT_FOUND, "Public Arc not found with slug: " + slug));
 
         Language lang = languageResolver.resolveLanguage();
-        PublicArcResponseDTO dto = arcMapper.toPublicDto(arc, lang);
-
-        Set<PublicChapterResponseDTO> chapters = chapterRepository
-                .findByArcSlugAndStatusInOrderByOrderIndexAsc(slug, PUBLIC_CHAPTER_STATUSES)
-                .stream()
-                .map(chapter -> {
-                    PublicChapterResponseDTO cDto = chapterMapper.toPublicDto(chapter, lang);
-                    cDto.setEpisodes(buildPublicEpisodes(chapter.getSlug(), lang));
-                    return cDto;
-                })
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        dto.setChapters(chapters);
-        return dto;
+        return arcMapper.toPublicDto(arc, lang);
     }
 
     @Override
@@ -178,21 +152,5 @@ public class ArcServiceImpl implements ArcService {
         return arcRepository.findTimeline(lang);
     }
 
-    /*TODO: duplicate code */
-    private Set<PublicEpisodeResponseDTO> buildPublicEpisodes(String chapterSlug, Language lang) {
-        return episodeRepository
-                .findByChapterSlugAndStatusInOrderByOrderIndexAsc(chapterSlug, PUBLIC_EPISODE_STATUSES)
-                .stream()
-                .map(episode -> {
-                    PublicEpisodeResponseDTO eDto = episodeMapper.toPublicDto(episode, lang);
-                    Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
-                            .findByEpisodeSlugAndVisibilityIn(episode.getSlug(), PUBLIC_NOTE_VISIBILITIES)
-                            .stream()
-                            .map(note -> marginNoteMapper.toPublicDto(note, lang))
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
-                    eDto.setMarginNotes(notes);
-                    return eDto;
-                })
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
+
 }

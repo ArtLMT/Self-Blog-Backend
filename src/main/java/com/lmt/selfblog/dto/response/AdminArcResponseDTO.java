@@ -6,7 +6,6 @@ import com.lmt.selfblog.common.Visibility;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -25,5 +24,4 @@ public class AdminArcResponseDTO {
     private Instant updatedAt;
     private UUID createdBy;
     private UUID updatedBy;
-    private Set<AdminChapterResponseDTO> chapters;
 }

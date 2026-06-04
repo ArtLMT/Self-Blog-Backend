@@ -4,7 +4,6 @@ import com.lmt.selfblog.common.Language;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.Set;
 
 @Data
 public class PublicChapterResponseDTO {
@@ -17,5 +16,5 @@ public class PublicChapterResponseDTO {
     private Integer readingTimeMinutes;
     private Instant publishedAt;
     private String arcSlug;
-    private Set<PublicEpisodeResponseDTO> episodes;
+    private String arcTitle;
 }

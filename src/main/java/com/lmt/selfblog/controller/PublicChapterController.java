@@ -34,4 +34,13 @@ public class PublicChapterController {
         PublicChapterResponseDTO response = chapterService.getPublicChapterBySlug(slug);
         return ResponseEntity.ok(ApiResponse.success("Public Chapter retrieved successfully", response));
     }
+
+    @GetMapping("/index")
+    @Operation(summary = "Get a lightweight index of all public Arcs and their Chapters")
+    public ResponseEntity<ApiResponse<List<com.lmt.selfblog.dto.response.ChaptersIndexArcDTO>>> getChaptersIndex() {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Chapters index retrieved successfully",
+                chapterService.getPublicChaptersIndex()
+        ));
+    }
 }

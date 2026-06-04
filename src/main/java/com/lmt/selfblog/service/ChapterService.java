@@ -24,4 +24,6 @@ public interface ChapterService {
     List<PublicChapterResponseDTO> getPublicChaptersByArc(String arcSlug);
 
     PublicChapterResponseDTO getPublicChapterBySlug(String slug);
+
+    List<com.lmt.selfblog.dto.response.ChaptersIndexArcDTO> getPublicChaptersIndex();
 }

@@ -137,16 +137,7 @@ public class EpisodeServiceImpl implements EpisodeService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.EPISODE_NOT_FOUND, "Public Episode not found with slug: " + slug));
 
         Language lang = languageResolver.resolveLanguage();
-        PublicEpisodeResponseDTO dto = episodeMapper.toPublicDto(episode, lang);
-        
-        Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
-                .findByEpisodeSlugAndVisibilityIn(slug, PUBLIC_NOTE_VISIBILITIES)
-                .stream()
-                .map(note -> marginNoteMapper.toPublicDto(note, lang))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        dto.setMarginNotes(notes);
-        
-        return dto;
+        return episodeMapper.toPublicDto(episode, lang);
     }
 
     @Override
@@ -155,16 +146,7 @@ public class EpisodeServiceImpl implements EpisodeService {
         Language lang = languageResolver.resolveLanguage();
         return episodeRepository.findByChapterSlugAndStatusInOrderByOrderIndexAsc(chapterSlug, PUBLIC_EPISODE_STATUSES)
                 .stream()
-                .map(episode -> {
-                    PublicEpisodeResponseDTO dto = episodeMapper.toPublicDto(episode, lang);
-                    Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
-                            .findByEpisodeSlugAndVisibilityIn(episode.getSlug(), PUBLIC_NOTE_VISIBILITIES)
-                            .stream()
-                            .map(note -> marginNoteMapper.toPublicDto(note, lang))
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
-                    dto.setMarginNotes(notes);
-                    return dto;
-                })
+                .map(episode -> episodeMapper.toPublicDto(episode, lang))
                 .collect(Collectors.toList());
     }
 }

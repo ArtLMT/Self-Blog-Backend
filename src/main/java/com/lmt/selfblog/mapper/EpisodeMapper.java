@@ -4,6 +4,8 @@ import com.lmt.selfblog.common.Language;
 import com.lmt.selfblog.dto.request.EpisodeRequestDTO;
 import com.lmt.selfblog.dto.response.AdminEpisodeResponseDTO;
 import com.lmt.selfblog.dto.response.PublicEpisodeResponseDTO;
+import com.lmt.selfblog.entity.Chapter;
+import com.lmt.selfblog.entity.ChapterTranslation;
 import com.lmt.selfblog.entity.Episode;
 import com.lmt.selfblog.entity.EpisodeTranslation;
 import org.mapstruct.Context;
@@ -11,10 +13,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = {MarginNoteMapper.class})
+@Mapper(componentModel = "spring")
 public abstract class EpisodeMapper {
 
     @Mapping(target = "chapterSlug", source = "chapter.slug")
+    @Mapping(target = "chapterTitle", expression = "java(getChapterTranslation(episode.getChapter(), lang).getTitle())")
     @Mapping(target = "title", expression = "java(getTranslation(episode, lang).getTitle())")
     @Mapping(target = "markdownContent", expression = "java(getTranslation(episode, lang).getMarkdownContent())")
     @Mapping(target = "conclusion", expression = "java(getTranslation(episode, lang).getConclusion())")
@@ -22,6 +25,7 @@ public abstract class EpisodeMapper {
     public abstract PublicEpisodeResponseDTO toPublicDto(Episode episode, @Context Language lang);
 
     @Mapping(target = "chapterId", source = "chapter.id")
+    @Mapping(target = "chapterTitle", expression = "java(getChapterTranslation(episode.getChapter(), lang).getTitle())")
     @Mapping(target = "title", expression = "java(getTranslation(episode, lang).getTitle())")
     @Mapping(target = "markdownContent", expression = "java(getTranslation(episode, lang).getMarkdownContent())")
     @Mapping(target = "conclusion", expression = "java(getTranslation(episode, lang).getConclusion())")
@@ -56,5 +60,15 @@ public abstract class EpisodeMapper {
                 .filter(t -> t.getLanguage() == lang)
                 .findFirst()
                 .orElseGet(() -> episode.getTranslations().stream().findFirst().orElse(new EpisodeTranslation()));
+    }
+
+    protected ChapterTranslation getChapterTranslation(Chapter chapter, Language lang) {
+        if (chapter == null || chapter.getTranslations() == null || chapter.getTranslations().isEmpty()) {
+            return new ChapterTranslation();
+        }
+        return chapter.getTranslations().stream()
+                .filter(t -> t.getLanguage() == lang)
+                .findFirst()
+                .orElseGet(() -> chapter.getTranslations().stream().findFirst().orElse(new ChapterTranslation()));
     }
 }

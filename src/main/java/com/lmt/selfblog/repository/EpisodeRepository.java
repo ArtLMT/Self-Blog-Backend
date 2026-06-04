@@ -20,4 +20,8 @@ public interface EpisodeRepository extends JpaRepository<Episode, UUID> {
     List<Episode> findByChapterIdOrderByOrderIndexAsc(UUID chapterId);
 
     List<Episode> findByChapterSlugAndStatusInOrderByOrderIndexAsc(String chapterSlug, Collection<ContentStatus> statuses);
+
+    long countByStatus(ContentStatus status);
+
+    List<Episode> findTop5ByOrderByUpdatedAtDesc();
 }

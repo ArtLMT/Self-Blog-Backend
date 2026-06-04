@@ -4,6 +4,8 @@ import com.lmt.selfblog.common.Language;
 import com.lmt.selfblog.dto.request.MarginNoteRequestDTO;
 import com.lmt.selfblog.dto.response.AdminMarginNoteResponseDTO;
 import com.lmt.selfblog.dto.response.PublicMarginNoteResponseDTO;
+import com.lmt.selfblog.entity.Episode;
+import com.lmt.selfblog.entity.EpisodeTranslation;
 import com.lmt.selfblog.entity.MarginNote;
 import com.lmt.selfblog.entity.MarginNoteTranslation;
 import org.mapstruct.Context;
@@ -15,11 +17,13 @@ import org.mapstruct.MappingTarget;
 public abstract class MarginNoteMapper {
 
     @Mapping(target = "episodeSlug", source = "episode.slug")
+    @Mapping(target = "episodeTitle", expression = "java(getEpisodeTranslation(marginNote.getEpisode(), lang).getTitle())")
     @Mapping(target = "noteContent", expression = "java(getTranslation(marginNote, lang).getNoteContent())")
     @Mapping(target = "language", expression = "java(lang)")
     public abstract PublicMarginNoteResponseDTO toPublicDto(MarginNote marginNote, @Context Language lang);
 
     @Mapping(target = "episodeId", source = "episode.id")
+    @Mapping(target = "episodeTitle", expression = "java(getEpisodeTranslation(marginNote.getEpisode(), lang).getTitle())")
     @Mapping(target = "noteContent", expression = "java(getTranslation(marginNote, lang).getNoteContent())")
     @Mapping(target = "language", expression = "java(lang)")
     public abstract AdminMarginNoteResponseDTO toAdminDto(MarginNote marginNote, @Context Language lang);
@@ -50,5 +54,15 @@ public abstract class MarginNoteMapper {
                 .filter(t -> t.getLanguage() == lang)
                 .findFirst()
                 .orElseGet(() -> marginNote.getTranslations().stream().findFirst().orElse(new MarginNoteTranslation()));
+    }
+
+    protected EpisodeTranslation getEpisodeTranslation(Episode episode, Language lang) {
+        if (episode == null || episode.getTranslations() == null || episode.getTranslations().isEmpty()) {
+            return new EpisodeTranslation();
+        }
+        return episode.getTranslations().stream()
+                .filter(t -> t.getLanguage() == lang)
+                .findFirst()
+                .orElseGet(() -> episode.getTranslations().stream().findFirst().orElse(new EpisodeTranslation()));
     }
 }

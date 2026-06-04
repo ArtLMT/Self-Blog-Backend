@@ -19,4 +19,5 @@ public class AdminMarginNoteResponseDTO {
     private Instant updatedAt;
     private UUID createdBy;
     private UUID updatedBy;
+    private String episodeTitle;
 }

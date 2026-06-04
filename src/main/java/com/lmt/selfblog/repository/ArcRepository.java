@@ -24,6 +24,8 @@ public interface ArcRepository extends JpaRepository<Arc, UUID> {
 
     List<Arc> findAllByOrderByDisplayOrderAsc();
 
+    long countByEndDateIsNull();
+
     @Query("""
         SELECT new com.lmt.selfblog.dto.response.TimelineItemDTO(
             at.title, a.slug, a.displayOrder,

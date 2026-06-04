@@ -9,4 +9,5 @@ public class PublicMarginNoteResponseDTO {
     private String noteContent;
     private String anchorPosition;
     private String episodeSlug;
+    private String episodeTitle;
 }

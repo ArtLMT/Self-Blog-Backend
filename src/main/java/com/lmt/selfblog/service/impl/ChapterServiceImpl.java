@@ -142,11 +142,7 @@ public class ChapterServiceImpl implements ChapterService {
         Language lang = languageResolver.resolveLanguage();
         return chapterRepository.findByArcSlugAndStatusInOrderByOrderIndexAsc(arcSlug, PUBLIC_CHAPTER_STATUSES)
                 .stream()
-                .map(chapter -> {
-                    PublicChapterResponseDTO dto = chapterMapper.toPublicDto(chapter, lang);
-                    dto.setEpisodes(buildPublicEpisodes(chapter.getSlug(), lang));
-                    return dto;
-                })
+                .map(chapter -> chapterMapper.toPublicDto(chapter, lang))
                 .collect(Collectors.toList());
     }
 
@@ -157,25 +153,57 @@ public class ChapterServiceImpl implements ChapterService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.CHAPTER_NOT_FOUND, "Public Chapter not found with slug: " + slug));
 
         Language lang = languageResolver.resolveLanguage();
-        PublicChapterResponseDTO dto = chapterMapper.toPublicDto(chapter, lang);
-        dto.setEpisodes(buildPublicEpisodes(slug, lang));
-        return dto;
+        return chapterMapper.toPublicDto(chapter, lang);
     }
 
-    private Set<PublicEpisodeResponseDTO> buildPublicEpisodes(String chapterSlug, Language lang) {
-        return episodeRepository
-                .findByChapterSlugAndStatusInOrderByOrderIndexAsc(chapterSlug, PUBLIC_EPISODE_STATUSES)
-                .stream()
-                .map(episode -> {
-                    PublicEpisodeResponseDTO eDto = episodeMapper.toPublicDto(episode, lang);
-                    Set<PublicMarginNoteResponseDTO> notes = marginNoteRepository
-                            .findByEpisodeSlugAndVisibilityIn(episode.getSlug(), PUBLIC_NOTE_VISIBILITIES)
-                            .stream()
-                            .map(note -> marginNoteMapper.toPublicDto(note, lang))
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
-                    eDto.setMarginNotes(notes);
-                    return eDto;
-                })
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+    @Override
+    @Transactional(readOnly = true)
+    public List<com.lmt.selfblog.dto.response.ChaptersIndexArcDTO> getPublicChaptersIndex() {
+        Language lang = languageResolver.resolveLanguage();
+        
+        List<Arc> publicArcs = arcRepository.findByVisibilityAndStatusInOrderByDisplayOrderAsc(
+                Visibility.PUBLIC, 
+                List.of(ContentStatus.PUBLISHED)
+        );
+
+        return publicArcs.stream().map(arc -> {
+            com.lmt.selfblog.dto.response.ChaptersIndexArcDTO arcDto = new com.lmt.selfblog.dto.response.ChaptersIndexArcDTO();
+            arcDto.setSlug(arc.getSlug());
+            
+            com.lmt.selfblog.entity.ArcTranslation arcTrans = arc.getTranslations().stream()
+                    .filter(t -> t.getLanguage() == lang)
+                    .findFirst()
+                    .orElseGet(() -> arc.getTranslations().stream().findFirst().orElse(null));
+                    
+            if (arcTrans != null) {
+                arcDto.setTitle(arcTrans.getTitle());
+            }
+
+            List<com.lmt.selfblog.dto.response.ChaptersIndexChapterDTO> chapters = chapterRepository
+                    .findByArcSlugAndStatusInOrderByOrderIndexAsc(arc.getSlug(), PUBLIC_CHAPTER_STATUSES)
+                    .stream()
+                    .map(chapter -> {
+                        com.lmt.selfblog.dto.response.ChaptersIndexChapterDTO chapterDto = new com.lmt.selfblog.dto.response.ChaptersIndexChapterDTO();
+                        chapterDto.setSlug(chapter.getSlug());
+                        chapterDto.setOrderIndex(chapter.getOrderIndex());
+                        chapterDto.setReadingTimeMinutes(chapter.getReadingTimeMinutes());
+
+                        com.lmt.selfblog.entity.ChapterTranslation chapterTrans = chapter.getTranslations().stream()
+                                .filter(t -> t.getLanguage() == lang)
+                                .findFirst()
+                                .orElseGet(() -> chapter.getTranslations().stream().findFirst().orElse(null));
+
+                        if (chapterTrans != null) {
+                            chapterDto.setTitle(chapterTrans.getTitle());
+                        }
+
+                        return chapterDto;
+                    })
+                    .collect(Collectors.toList());
+
+            arcDto.setChapters(chapters);
+            return arcDto;
+        }).collect(Collectors.toList());
     }
+
 }

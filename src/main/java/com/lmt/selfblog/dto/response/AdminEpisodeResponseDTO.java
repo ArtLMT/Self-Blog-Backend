@@ -5,7 +5,6 @@ import com.lmt.selfblog.common.Language;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -24,5 +23,5 @@ public class AdminEpisodeResponseDTO {
     private Instant updatedAt;
     private UUID createdBy;
     private UUID updatedBy;
-    private Set<AdminMarginNoteResponseDTO> marginNotes;
+    private String chapterTitle;
 }

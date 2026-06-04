@@ -20,4 +20,6 @@ public interface ChapterRepository extends JpaRepository<Chapter, UUID> {
     List<Chapter> findByArcIdOrderByOrderIndexAsc(UUID arcId);
 
     List<Chapter> findByArcSlugAndStatusInOrderByOrderIndexAsc(String arcSlug, Collection<ContentStatus> statuses);
+
+    long countByStatus(ContentStatus status);
 }

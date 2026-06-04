@@ -145,7 +145,26 @@ public class GlobalExceptionHandler {
     }
 
     // -------------------------------------------------------------------------
-    // 6. Fallback — anything not matched above
+    // 6. Spring MVC — Method Not Supported
+    // -------------------------------------------------------------------------
+
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(
+            org.springframework.web.HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request,
+            Locale locale
+    ) {
+        log.warn("[METHOD_NOT_ALLOWED] {} — path={}", ex.getMessage(), request.getRequestURI());
+
+        String message = "HTTP Method '" + ex.getMethod() + "' is not supported for this request.";
+
+        return ResponseEntity
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ApiResponse.error(message, "METHOD_NOT_ALLOWED"));
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. Fallback — anything not matched above
     // -------------------------------------------------------------------------
 
     @ExceptionHandler(Exception.class)
